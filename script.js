@@ -44,3 +44,14 @@ function clearAll() {
 }
 const btnClearAll = document.querySelector('#apaga-tudo');
 btnClearAll.addEventListener('click', clearAll);
+
+function clearDone() {
+  const todoItemSelect = document.querySelectorAll('.todolist__item');
+  for (let i = 0; i < todoItemSelect.length; i += 1) {
+    if (todoItemSelect[i].classList.contains('completed')) {
+      todoItemSelect[i].remove();
+    }
+  }
+}
+const btnClearDone = document.querySelector('#remover-finalizados');
+btnClearDone.addEventListener('click', clearDone);
