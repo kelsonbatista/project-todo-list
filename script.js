@@ -8,13 +8,13 @@ function setMessages(message) {
 
 function selectItem(event) {
   const evt = event.target;
-  // if (evt.className !== 'todolist__item completed') {
   const itemList = document.getElementsByClassName('todolist__item');
   for (let i = 0; i < itemList.length; i += 1) {
-    itemList[i].style.cssText = '';
+    if (itemList[i].classList.contains('item-list-bg')) {
+      itemList[i].classList.remove('item-list-bg');
+    }
   }
-  evt.style.cssText += 'background-color: rgb(128, 128, 128);';
-  // }
+  evt.classList.add('item-list-bg');
   clearMessages();
 }
 
@@ -124,13 +124,35 @@ function showList() {
 showList();
 
 function moveUp() {
-
+  const itemList = document.getElementsByClassName('todolist__item');
+  for (let i = 0; i < itemList.length; i += 1) {
+    if (itemList[i].style.backgroundColor === 'rgb(128, 128, 128)') {
+      const thisElement = itemList[i];
+      const aboveElement = itemList[i].previousElementSibling;
+      const theParent = itemList[i].parentNode;
+      if (aboveElement) {
+        theParent.insertBefore(thisElement, aboveElement);
+      }
+    }
+  }
+  clearMessages();
 }
 const btnMoveUp = document.querySelector('#mover-cima');
 btnMoveUp.addEventListener('click', moveUp);
 
 function moveDown() {
-
+  const itemList = document.getElementsByClassName('todolist__item');
+  for (let i = 0; i < itemList.length; i += 1) {
+    if (itemList[i].style.backgroundColor === 'rgb(128, 128, 128)') {
+      const thisElement = itemList[i];
+      const belowElement = itemList[i].nextElementSibling;
+      const theParent = itemList[i].parentNode;
+      if (belowElement) {
+        theParent.insertBefore(belowElement, thisElement);
+      }
+    }
+  }
+  clearMessages();
 }
 const btnMoveDown = document.querySelector('#mover-baixo');
 btnMoveDown.addEventListener('click', moveDown);
