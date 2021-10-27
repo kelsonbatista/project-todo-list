@@ -1,6 +1,3 @@
-const inputTask = document.querySelector('#texto-tarefa');
-const btnAddTask = document.querySelector('#criar-tarefa');
-
 function selectItem(event) {
   const evt = event.target;
   if (evt.className !== 'todolist__item completed') {
@@ -21,6 +18,8 @@ function dblClickItem(event) {
   }
 }
 
+const inputTask = document.querySelector('#texto-tarefa');
+
 function addTask() {
   const todoList = document.getElementById('lista-tarefas');
   const todoItem = document.createElement('li');
@@ -34,4 +33,14 @@ function addTask() {
     todoItemSelect[i].addEventListener('dblclick', dblClickItem);
   }
 }
+const btnAddTask = document.querySelector('#criar-tarefa');
 btnAddTask.addEventListener('click', addTask);
+
+function clearAll() {
+  const todoItemSelect = document.querySelector('#lista-tarefas');
+  while (todoItemSelect.lastElementChild) {
+    todoItemSelect.removeChild(todoItemSelect.lastElementChild);
+  }
+}
+const btnClearAll = document.querySelector('#apaga-tudo');
+btnClearAll.addEventListener('click', clearAll);

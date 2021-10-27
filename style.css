@@ -6,3 +6,8 @@
 .completed {
   text-decoration: line-through solid rgb(0, 0, 0);
 }
+
+.btncontrols__btn {
+  padding: 15px 30px;
+  margin: 10px 5px;
+}
