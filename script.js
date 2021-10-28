@@ -1,3 +1,21 @@
+/*
+Código completamente refatorado.
+Após tentativa de realização do item 13, o código parou de funcionar nos itens 9 e 11 inicialmente.
+
+Alterações realizadas:
+
+- backgroung do item colocado como classe no css - nome selected - (em vez de chamar direto no codigo)
+- a classe do bg no codigo foi colocado em uma variavel devido a repeticoes
+- foi retirado os listeners dos botoes de selecionar e duplo clique de dentro das funções (e onde aparecia repetido). Foi colocado externamente e o código colocado diretamente dentro dele.
+- códigos de selecionar e duplo clique totalmente refatorados
+- algumas variaveis trocadas de nome para melhor leitura
+*/
+
+/*
+*******************************************************
+MESSAGES
+*******************************************************
+*/
 function clearMessages() {
   document.querySelector('.messages__title').innerHTML = '';
 }
@@ -6,153 +24,157 @@ function setMessages(message) {
   document.querySelector('.messages__title').innerHTML = `${message}`;
 }
 
-function selectItem(event) {
-  const evt = event.target;
-  const itemList = document.getElementsByClassName('todolist__item');
-  for (let i = 0; i < itemList.length; i += 1) {
-    if (itemList[i].classList.contains('item-list-bg')) {
-      itemList[i].classList.remove('item-list-bg');
-    }
+const todoList = document.getElementById('lista-tarefas');
+const todoListItem = document.getElementsByClassName('todolist__item');
+const storedList = JSON.parse(localStorage.getItem('list'));
+/*
+*******************************************************
+TASK SELECT
+*******************************************************
+*/
+todoList.addEventListener('click', (event) => {
+  for (let i = 0; i < todoListItem.length; i += 1) {
+    todoListItem[i].classList.remove('selected');
   }
-  evt.classList.add('item-list-bg');
+  event.target.classList.add('selected');
   clearMessages();
-}
+});
 
-function dblClickItem(event) {
-  const evt = event.target;
-  if (evt.classList.contains('completed')) {
-    evt.classList.remove('completed');
+/*
+*******************************************************
+TASK DOUBLE CLICK
+*******************************************************
+*/
+todoList.addEventListener('dblclick', (event) => {
+  if (event.target.classList.contains('completed')) {
+    event.target.classList.remove('completed');
     clearMessages();
-    setMessages('Tarefa marcada como não concluída!');
+    setMessages('Tarefa não concluída!');
   } else {
-    evt.classList.add('completed');
+    event.target.classList.add('completed');
     clearMessages();
     setMessages('Tarefa marcada como concluída!');
   }
-  clearMessages();
-}
+});
 
+/*
+*******************************************************
+ADD TASK
+*******************************************************
+*/
 const inputTask = document.querySelector('#texto-tarefa');
+const btnAddTask = document.querySelector('#criar-tarefa');
 
-function addTask() {
-  const todoList = document.getElementById('lista-tarefas');
-  const todoItem = document.createElement('li');
-  todoItem.className = 'todolist__item';
-  todoItem.innerText = inputTask.value;
-  todoList.appendChild(todoItem);
+btnAddTask.addEventListener('click', () => {
+  const newItem = document.createElement('li');
+  newItem.className = 'todolist__item';
+  newItem.innerText = inputTask.value;
+  todoList.appendChild(newItem);
   inputTask.value = '';
-  const todoItemSelect = document.getElementsByClassName('todolist__item');
-  for (let i = 0; i < todoItemSelect.length; i += 1) {
-    todoItemSelect[i].addEventListener('click', selectItem);
-    todoItemSelect[i].addEventListener('dblclick', dblClickItem);
-  }
   clearMessages();
   setMessages('Tarefa adicionada com sucesso!');
-}
-const btnAddTask = document.querySelector('#criar-tarefa');
-btnAddTask.addEventListener('click', addTask);
+});
 
-function clearAll() {
-  const todoItemList = document.querySelector('#lista-tarefas');
-  while (todoItemList.lastElementChild) {
-    todoItemList.removeChild(todoItemList.lastElementChild);
+/*
+*******************************************************
+CLEAR ALL TASKS
+*******************************************************
+*/
+const btnClearAll = document.querySelector('#apaga-tudo');
+btnClearAll.addEventListener('click', () => {
+  while (todoList.lastElementChild) {
+    todoList.removeChild(todoList.lastElementChild);
   }
-  const theList = JSON.parse(localStorage.getItem('list'));
-  if ((theList !== null && theList.length > 0)) {
+  if (storedList !== null && storedList.length > 0) {
     localStorage.removeItem('list');
   }
   clearMessages();
   setMessages('Tarefas apagadas com sucesso!');
-}
-const btnClearAll = document.querySelector('#apaga-tudo');
-btnClearAll.addEventListener('click', clearAll);
+});
 
-function clearDone() {
-  const todoItemList = document.querySelectorAll('.todolist__item');
-  for (let i = 0; i < todoItemList.length; i += 1) {
-    if (todoItemList[i].classList.contains('completed')) {
-      todoItemList[i].remove();
-    }
+/*
+*******************************************************
+CLEAR ALL TASKS DONE
+*******************************************************
+*/
+const btnClearDone = document.querySelector('#remover-finalizados');
+btnClearDone.addEventListener('click', () => {
+  const completedItem = document.querySelectorAll('.completed');
+  for (let i = 0; i < completedItem.length; i += 1) {
+    completedItem[i].remove();
   }
   clearMessages();
   setMessages('Tarefas realizadas apagadas com sucesso!');
-}
-const btnClearDone = document.querySelector('#remover-finalizados');
-btnClearDone.addEventListener('click', clearDone);
+});
 
-function saveList() {
+/*
+*******************************************************
+SAVE LIST
+*******************************************************
+*/
+const btnSaveList = document.querySelector('#salvar-tarefas');
+btnSaveList.addEventListener('click', () => {
   const list = [];
-  const todoItemList = document.querySelectorAll('.todolist__item');
-  for (let i = 0; i < todoItemList.length; i += 1) {
+  for (let i = 0; i < todoListItem.length; i += 1) {
     list.push({
-      text: todoItemList[i].innerText,
-      class: todoItemList[i].className,
+      text: todoListItem[i].innerText,
+      class: todoListItem[i].className,
     });
   }
   localStorage.setItem('list', JSON.stringify(list));
   clearMessages();
   setMessages('Lista de tarefas salva com sucesso!');
-}
-const btnSaveList = document.querySelector('#salvar-tarefas');
-btnSaveList.addEventListener('click', saveList);
+});
 
-function watchList() {
-  const todoItemSelect = document.getElementsByClassName('todolist__item');
-  for (let i = 0; i < todoItemSelect.length; i += 1) {
-    todoItemSelect[i].addEventListener('click', selectItem);
-    todoItemSelect[i].addEventListener('dblclick', dblClickItem);
-  }
-}
-
-function showList() {
-  const theList = JSON.parse(localStorage.getItem('list'));
-  // console.log(theList);
-  if (theList !== null && theList.length > 0) {
-    const listLength = theList.length;
-    const todoList = document.getElementById('lista-tarefas');
-    for (let i = 0; i < listLength; i += 1) {
-      const todoItem = document.createElement('li');
-      todoItem.className = theList[i].class;
-      todoItem.innerText = theList[i].text;
-      todoList.appendChild(todoItem);
-    }
-    clearMessages();
-    watchList();
-  }
-}
-
-showList();
-
-function moveUp() {
-  const itemList = document.getElementsByClassName('todolist__item');
-  for (let i = 0; i < itemList.length; i += 1) {
-    if (itemList[i].style.backgroundColor === 'rgb(128, 128, 128)') {
-      const thisElement = itemList[i];
-      const aboveElement = itemList[i].previousElementSibling;
-      const theParent = itemList[i].parentNode;
-      if (aboveElement) {
-        theParent.insertBefore(thisElement, aboveElement);
-      }
-    }
+/*
+*******************************************************
+RETRIEVE AND SHOW SAVED LIST
+*******************************************************
+*/
+if (storedList !== null && storedList.length > 0) {
+  for (let i = 0; i < storedList.length; i += 1) {
+    const newItem = document.createElement('li');
+    newItem.className = storedList[i].class;
+    newItem.innerText = storedList[i].text;
+    newItem.classList.remove('selected');
+    todoList.appendChild(newItem);
   }
   clearMessages();
 }
+
+/*
+*******************************************************
+TASK MOVE UP
+*******************************************************
+*/
 const btnMoveUp = document.querySelector('#mover-cima');
-btnMoveUp.addEventListener('click', moveUp);
-
-function moveDown() {
-  const itemList = document.getElementsByClassName('todolist__item');
-  for (let i = 0; i < itemList.length; i += 1) {
-    if (itemList[i].style.backgroundColor === 'rgb(128, 128, 128)') {
-      const thisElement = itemList[i];
-      const belowElement = itemList[i].nextElementSibling;
-      const theParent = itemList[i].parentNode;
-      if (belowElement) {
-        theParent.insertBefore(belowElement, thisElement);
-      }
+btnMoveUp.addEventListener('click', () => {
+  const selectedItem = document.getElementsByClassName('selected');
+  for (let i = 0; i < selectedItem.length; i += 1) {
+    const selectedClass = selectedItem[i].classList.contains('selected');
+    const previousElement = selectedItem[i].previousElementSibling;
+    if (selectedClass && selectedItem[i].previousElementSibling) {
+      selectedItem[i].parentNode.insertBefore(selectedItem[i], previousElement);
     }
   }
   clearMessages();
-}
+});
+
+/*
+*******************************************************
+TASK MOVE DOWN
+*******************************************************
+*/
 const btnMoveDown = document.querySelector('#mover-baixo');
-btnMoveDown.addEventListener('click', moveDown);
+// em uma thread do slack , a Fernanda (instrutora) disse para inverter os elementos em 'insertbefore' para obter o efeito desejado
+btnMoveDown.addEventListener('click', () => {
+  const selectedItem = document.getElementsByClassName('selected');
+  for (let i = 0; i < selectedItem.length; i += 1) {
+    const selectedClass = selectedItem[i].classList.contains('selected');
+    const nextElement = selectedItem[i].nextElementSibling;
+    if (selectedClass && selectedItem[i].nextElementSibling) {
+      selectedItem[i].parentNode.insertBefore(nextElement, selectedItem[i]);
+    }
+  }
+  clearMessages();
+});
