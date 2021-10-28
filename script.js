@@ -144,6 +144,24 @@ if (storedList !== null && storedList.length > 0) {
 
 /*
 *******************************************************
+REMOVE SELECTED TASK
+*******************************************************
+*/
+const btnRemove = document.querySelector('#remover-selecionado');
+btnRemove.addEventListener('click', () => {
+  const selectedItem = document.getElementsByClassName('selected');
+  for (let i = 0; i < selectedItem.length; i += 1) {
+    const selectedClass = selectedItem[i].classList.contains('selected');
+    if (selectedClass) {
+      selectedItem[i].remove();
+    }
+  }
+  clearMessages();
+  setMessages('Tarefa removida com sucesso! Não esqueça de salvar a lista :)');
+});
+
+/*
+*******************************************************
 TASK MOVE UP
 *******************************************************
 */
