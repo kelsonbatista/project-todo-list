@@ -34,12 +34,29 @@ TASK SELECT
 */
 todoList.addEventListener('click', (event) => {
   for (let i = 0; i < todoListItem.length; i += 1) {
-    todoListItem[i].classList.remove('selected');
+    if(!event.target.classList.contains('selected')) todoListItem[i].classList.remove('selected');
   }
-  event.target.classList.add('selected');
+  if (event.target.classList.contains('selected')) {
+    event.target.classList.remove('selected');
+  } else {
+    event.target.classList.add('selected');
+  }
   clearMessages();
 });
-
+// CLICK ANYWHERE TO UNSELECT
+document.addEventListener('click', (event) => {
+  console.log(event.target.classList[0]);
+  if (event.target.classList[0] !== 'todolist__item' &&
+      event.target.classList[0] !== 'addtask__text' &&
+      event.target.classList[0] !== 'addtask__add' &&
+      event.target.classList[0] !== 'btncontrols__btn' &&
+      event.target.classList[0].contains('fas')
+      ) {
+    for (let i = 0; i < todoListItem.length; i += 1) {
+      todoListItem[i].classList.remove('selected');
+    }
+  }
+});
 /*
 *******************************************************
 TASK DOUBLE CLICK
@@ -49,11 +66,11 @@ todoList.addEventListener('dblclick', (event) => {
   if (event.target.classList.contains('completed')) {
     event.target.classList.remove('completed');
     clearMessages();
-    setMessages('Tarefa não concluída!');
+    setMessages('Task marked as NOT completed! Don\'t forget to save the list :)');
   } else {
     event.target.classList.add('completed');
     clearMessages();
-    setMessages('Tarefa marcada como concluída!');
+    setMessages('Task marked as completed! Don\'t forget to save the list :)');
   }
 });
 
@@ -66,13 +83,19 @@ const inputTask = document.querySelector('#texto-tarefa');
 const btnAddTask = document.querySelector('#criar-tarefa');
 
 btnAddTask.addEventListener('click', () => {
-  const newItem = document.createElement('li');
-  newItem.className = 'todolist__item';
-  newItem.innerText = inputTask.value;
-  todoList.appendChild(newItem);
-  inputTask.value = '';
-  clearMessages();
-  setMessages('Tarefa adicionada com sucesso!');
+  const text = inputTask.value;
+  if ((text === '') || (/^\s+$/.test(text))) {
+    clearMessages();
+    setMessages('Type a task to be added');
+  } else {
+    const newItem = document.createElement('li');
+    newItem.className = 'todolist__item';
+    newItem.innerText = inputTask.value;
+    todoList.appendChild(newItem);
+    inputTask.value = '';
+    clearMessages();
+    setMessages('Task successfully added! Don\'t forget to save the list :)');
+  }
 });
 
 /*
@@ -82,14 +105,19 @@ CLEAR ALL TASKS
 */
 const btnClearAll = document.querySelector('#apaga-tudo');
 btnClearAll.addEventListener('click', () => {
-  while (todoList.lastElementChild) {
-    todoList.removeChild(todoList.lastElementChild);
+  if (todoList.lastElementChild) {
+    while (todoList.lastElementChild) {
+      todoList.removeChild(todoList.lastElementChild);
+    }
+    if (storedList !== null && storedList.length > 0) {
+      localStorage.removeItem('list');
+    }
+    clearMessages();
+    setMessages('Tasks successfully deleted!');
+  } else {
+    clearMessages();
+    setMessages('There is no task on the list');
   }
-  if (storedList !== null && storedList.length > 0) {
-    localStorage.removeItem('list');
-  }
-  clearMessages();
-  setMessages('Tarefas apagadas com sucesso!');
 });
 
 /*
@@ -100,11 +128,16 @@ CLEAR ALL TASKS DONE
 const btnClearDone = document.querySelector('#remover-finalizados');
 btnClearDone.addEventListener('click', () => {
   const completedItem = document.querySelectorAll('.completed');
-  for (let i = 0; i < completedItem.length; i += 1) {
-    completedItem[i].remove();
+  if (completedItem.length !== 0) {
+    for (let i = 0; i < completedItem.length; i += 1) {
+      completedItem[i].remove();
+    }
+    clearMessages();
+    setMessages('Completed task successfully deleted! Don\'t forget to save the list :)');
+  } else {
+    clearMessages();
+    setMessages('There is no completed task. To mark as completed, double click on it.');
   }
-  clearMessages();
-  setMessages('Tarefas realizadas apagadas com sucesso!');
 });
 
 /*
@@ -123,7 +156,7 @@ btnSaveList.addEventListener('click', () => {
   }
   localStorage.setItem('list', JSON.stringify(list));
   clearMessages();
-  setMessages('Lista de tarefas salva com sucesso!');
+  setMessages('Task list successfully saved!');
 });
 
 /*
@@ -150,14 +183,19 @@ REMOVE SELECTED TASK
 const btnRemove = document.querySelector('#remover-selecionado');
 btnRemove.addEventListener('click', () => {
   const selectedItem = document.getElementsByClassName('selected');
-  for (let i = 0; i < selectedItem.length; i += 1) {
-    const selectedClass = selectedItem[i].classList.contains('selected');
-    if (selectedClass) {
-      selectedItem[i].remove();
+  if (selectedItem.length !== 0) {
+    for (let i = 0; i < selectedItem.length; i += 1) {
+      const selectedClass = selectedItem[i].classList.contains('selected');
+      if (selectedClass) {
+        selectedItem[i].remove();
+      }
     }
+    clearMessages();
+    setMessages('Task successfully deleted! Don\'t forget to save the list :)');
+  } else {
+    clearMessages();
+    setMessages('Please select a task to delete it');
   }
-  clearMessages();
-  setMessages('Tarefa removida com sucesso! Não esqueça de salvar a lista :)');
 });
 
 /*
@@ -168,14 +206,20 @@ TASK MOVE UP
 const btnMoveUp = document.querySelector('#mover-cima');
 btnMoveUp.addEventListener('click', () => {
   const selectedItem = document.getElementsByClassName('selected');
-  for (let i = 0; i < selectedItem.length; i += 1) {
-    const selectedClass = selectedItem[i].classList.contains('selected');
-    const previousElement = selectedItem[i].previousElementSibling;
-    if (selectedClass && selectedItem[i].previousElementSibling) {
-      selectedItem[i].parentNode.insertBefore(selectedItem[i], previousElement);
+  if (selectedItem.length !== 0) {
+    for (let i = 0; i < selectedItem.length; i += 1) {
+      const selectedClass = selectedItem[i].classList.contains('selected');
+      const previousElement = selectedItem[i].previousElementSibling;
+      if (selectedClass && selectedItem[i].previousElementSibling) {
+        selectedItem[i].parentNode.insertBefore(selectedItem[i], previousElement);
+      }
     }
+    clearMessages();
+    setMessages('Task moved up! Don\'t forget to save the list :)');
+  } else {
+    clearMessages();
+    setMessages('Please select a task to move it up');
   }
-  clearMessages();
 });
 
 /*
@@ -187,12 +231,18 @@ const btnMoveDown = document.querySelector('#mover-baixo');
 // em uma thread do slack , a Fernanda (instrutora) disse para inverter os elementos em 'insertbefore' para obter o efeito desejado
 btnMoveDown.addEventListener('click', () => {
   const selectedItem = document.getElementsByClassName('selected');
-  for (let i = 0; i < selectedItem.length; i += 1) {
-    const selectedClass = selectedItem[i].classList.contains('selected');
-    const nextElement = selectedItem[i].nextElementSibling;
-    if (selectedClass && selectedItem[i].nextElementSibling) {
-      selectedItem[i].parentNode.insertBefore(nextElement, selectedItem[i]);
+  if (selectedItem.length !== 0) {
+    for (let i = 0; i < selectedItem.length; i += 1) {
+      const selectedClass = selectedItem[i].classList.contains('selected');
+      const nextElement = selectedItem[i].nextElementSibling;
+      if (selectedClass && selectedItem[i].nextElementSibling) {
+        selectedItem[i].parentNode.insertBefore(nextElement, selectedItem[i]);
+      }
     }
+    clearMessages();
+    setMessages('Task moved down! Don\'t forget to save the list :)');
+  } else {
+    clearMessages();
+    setMessages('Please select a task to move it down');
   }
-  clearMessages();
 });

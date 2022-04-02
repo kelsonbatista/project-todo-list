@@ -1,10 +1,51 @@
+body {
+  background-color: antiquewhite;
+  display: flex;
+  justify-content: center;
+  /* font-family: Helvetica, Arial, sans-serif; */
+}
+
+.container {
+  background-color: white;
+  border-radius: 30px;
+  padding: 50px 50px;
+  margin: 70px auto;
+  z-index: 1;
+}
+
+.header__title {
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.header__subtitle {
+  font-size: 22px;
+  color: #aaa;
+  font-style: italic;
+}
+
+.addtask__item {
+  display: flex;
+  align-items: center;
+}
+
+.addtask__text {
+  margin-left: 10px;
+}
+
+.addtask__add {
+  padding: 13px 50px;
+  margin: 10px 25px;
+  border-radius: 100px;
+}
+
 .todolist__item:hover {
   cursor: pointer;
   user-select: none;
 }
 
 .selected {
-  background-color: grey;
+  background-color: #ccc;
 }
 
 .completed {
@@ -12,10 +53,30 @@
 }
 
 .btncontrols__btn {
-  padding: 15px 30px;
+  padding: 15px 50px;
   margin: 10px 5px;
+  border-radius: 100px;
+  font-size: 18px;
 }
 
-.messages {
+.messages__title {
+  padding: 15px 10px 40px;
   height: 40px;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.todolist__content {
+  margin-bottom: 50px;
+  z-index: 10;
+}
+
+.todolist__list {
+  font-size: 18px;
+  z-index: 10;
+}
+
+.todolist__item {
+  padding: 3px 0;
+  z-index: 10;
 }
